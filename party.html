@@ -17,12 +17,13 @@
     </section>
     <section class="ligature-panel">
       <div><strong>OPENTYPE TEXT MIX</strong><small>直接編集できます</small></div>
-      <div class="ligature-input" contenteditable="true" spellcheck="false" aria-label="Character tag playground">abcde あいうえお</div>
+      <div class="ligature-input" contenteditable="true" spellcheck="false" aria-label="Character wing playground">abcde あいうえお アイウエオ</div>
       <code>font-feature-settings: "liga" 1;</code>
     </section>
     <section class="tag-showcase" aria-label="Character-carrying parrot examples">
       <div><small>LATIN · FRAME 0—4</small><p contenteditable="true" spellcheck="false">abcde</p></div>
       <div><small>HIRAGANA · FRAME 0—4</small><p contenteditable="true" spellcheck="false">あいうえお</p></div>
+      <div><small>KATAKANA · FRAME 0—4</small><p contenteditable="true" spellcheck="false">アイウエオ</p></div>
       <div><small>LIGATURE · ONE PARROT</small><p contenteditable="true" spellcheck="false">party</p></div>
     </section>
     <section class="downloads">
@@ -45,7 +46,7 @@
 .parrot {
   font-family: "Party Parrot Frames";
 }</code></pre>
-      <p><code>abcde</code>や<code>あいうえお</code>では、文字ごとに異なるポーズのパロットが文字タグを咥えます。<code>party</code>、<code>parrot</code>、<code>party_parrot</code>はOpenType合字で1羽になります。アニメーションは配布GIFの10フレームをCOLRグリフとして順番に切り替えます。<br><small>Unofficial project. Source GIF: Cult of the Party Parrot. Original GIF: Geiger Powell. The distributor notes that the party-colored variant's creator is unknown.</small></p>
+      <p><code>abcde</code>、<code>あいうえお</code>、<code>アイウエオ</code>では、文字ごとに異なるポーズになり、文字自体が黒い翼として胴体へ融合します。<code>party</code>、<code>parrot</code>、<code>party_parrot</code>はOpenType合字で1羽になります。<br><small>Unofficial project. Source GIF: Cult of the Party Parrot. Original GIF: Geiger Powell. The distributor notes that the party-colored variant's creator is unknown.</small></p>
     </section>
   </main>
   <script src="party.js"></script>

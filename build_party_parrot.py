@@ -26,7 +26,9 @@ NOTO_LICENSE = "https://raw.githubusercontent.com/notofonts/noto-cjk/main/Sans/L
 PUA = 0xE000
 SCALE = 7
 FAMILY = "Party Parrot Frames"
-HIRAGANA = "あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをん"
+HIRAGANA = "ぁあぃいぅうぇえぉおかがきぎくぐけげこござしじすずせぜそぞただちぢっつづてでとどなにぬねのはばぱひびぴふぶぷへべぺほぼぽまみむめもゃやゅゆょよらりるれろゎわゐゑをんゔゕゖ"
+KATAKANA = "ァアィイゥウェエォオカガキギクグケゲコゴサザシジスズセゼソゾタダチヂッツヅテデトドナニヌネノハバパヒビピフブプヘベペホボポマミムメモャヤュユョヨラリルレロヮワヰヱヲンヴヵヶ"
+JP_SYMBOLS = "、。・ー「」『』【】（）［］｛｝！？：；〜…‥〒※☆★○●◎々〆〄"
 STYLES = (
     ("Regular", 0, 400, False, False, "regular"),
     ("Bold", 2, 700, True, False, "bold"),
@@ -106,11 +108,11 @@ def label_glyph(character, noto):
     if bounds_pen.bounds is None:
         return pen.glyph(), 0
     x_min, y_min, x_max, y_max = bounds_pen.bounds
-    scale = min(250 / max(1, x_max - x_min), 250 / max(1, y_max - y_min))
-    # Hang the character directly below the central beak, like a small tag
-    # held in the parrot's mouth. Center from actual outline bounds, not advance.
-    x = 500 - (x_min + x_max) * scale / 2
-    y = 255 - (y_min + y_max) * scale / 2
+    scale = min(185 / max(1, x_max - x_min), 185 / max(1, y_max - y_min))
+    # The character becomes the parrot's wing: embedded in the lower torso and
+    # visually connected to the original black wing stroke.
+    x = 385 - (x_min + x_max) * scale / 2
+    y = 290 - (y_min + y_max) * scale / 2
     transformed = TransformPen(Cu2QuPen(pen, max_err=0.4, reverse_direction=False),
                                (scale, 0, 0, scale, x, y))
     recording = DecomposingRecordingPen(glyph_set)
@@ -123,8 +125,9 @@ def character_frame(character):
     lower = character.lower()
     if "a" <= lower <= "z":
         return (ord(lower) - ord("a")) % 10
-    if character in HIRAGANA:
-        return HIRAGANA.index(character) % 10
+    japanese = HIRAGANA + KATAKANA + JP_SYMBOLS
+    if character in japanese:
+        return japanese.index(character) % 10
     if character.isdigit():
         return int(character) % 10
     return ord(character) % 10
@@ -132,7 +135,7 @@ def character_frame(character):
 
 def build_sources(gif, noto):
     empty = TTGlyphPen(None).glyph()
-    preview_chars = ascii_letters + digits + punctuation + HIRAGANA
+    preview_chars = ascii_letters + digits + punctuation + HIRAGANA + KATAKANA + JP_SYMBOLS
     text_glyphs = {character: f"text.u{ord(character):04X}" for character in preview_chars}
     label_glyphs = {character: f"label.u{ord(character):04X}" for character in preview_chars}
     label_data = {character: label_glyph(character, noto) for character in preview_chars}
@@ -152,26 +155,22 @@ def build_sources(gif, noto):
     # COLR v0 compatibility: early Windows implementations require glyph ID 1
     # to be .null (OpenType COLR specification recommendation).
     order = [".notdef", ".null", "space"] + list(text_glyphs.values()) + list(label_glyphs.values()) + base_names + [n for n in glyphs if n not in {".notdef", ".null", "space", *text_glyphs.values(), *label_glyphs.values(), *base_names}]
-    white = (255, 255, 255, 255)
-    if white not in palette:
-        palette[white] = len(palette)
+    black = min(palette, key=lambda color: sum(color[:3]))
     colors = [None] * len(palette)
     for rgba, index in palette.items():
         colors[index] = tuple(channel / 255 for channel in rgba)
-    return glyphs, text_glyphs, label_glyphs, label_lsbs, base_names, colr, order, colors, palette[white]
+    return glyphs, text_glyphs, label_glyphs, label_lsbs, base_names, colr, order, colors, palette[black]
 
 
 def build_style(style_name, preview_frame, weight, bold, italic, suffix, sources):
-    glyphs, text_glyphs, label_glyphs, label_lsbs, base_names, frame_colr, order, colors, white_index = sources
+    glyphs, text_glyphs, label_glyphs, label_lsbs, base_names, frame_colr, order, colors, black_index = sources
     colr = dict(frame_colr)
     for character, glyph in text_glyphs.items():
         frame = (character_frame(character) + preview_frame) % len(base_names)
         layers = frame_colr[base_names[frame]]
-        # Put the letter above color fills but below black outline/beak layers,
-        # so the beak visually grips the label instead of the text floating on top.
-        back = [layer for layer in layers if sum(colors[layer[1]][:3]) >= 0.35]
-        front = [layer for layer in layers if sum(colors[layer[1]][:3]) < 0.35]
-        colr[glyph] = back + [(label_glyphs[character], white_index)] + front
+        # A black character-shaped wing becomes part of the body marking rather
+        # than a white label floating over the illustration.
+        colr[glyph] = layers + [(label_glyphs[character], black_index)]
     fb = FontBuilder(1000, isTTF=True)
     fb.setupGlyphOrder(order); fb.setupGlyf(glyphs)
     metrics = {name: (1000 if name != "space" else 360, label_lsbs.get(name, 0)) for name in order}
