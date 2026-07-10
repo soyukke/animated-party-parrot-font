@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Parrot × Glyph Topology Lab</title><link rel="stylesheet" href="topology.css">
+</head>
+<body><main>
+  <header><span>PARROT × GLYPH · TOPOLOGY LAB</span><a href="party.html">← PARTY PARROT</a></header>
+  <section class="hero">
+    <div><p class="kicker">SIGNED DISTANCE FUSION</p><h1>文字の骨格に<br>鳥を混ぜる。</h1></div>
+    <canvas id="result" width="512" height="512" aria-label="Fused glyph result"></canvas>
+  </section>
+  <section class="controls">
+    <label>GLYPH <input id="glyph" value="あ" maxlength="2"></label>
+    <label>FUSN <input id="fusion" type="range" min="0" max="100" value="58"><output id="fusionValue">58</output></label>
+    <label>FRAME <input id="frame" type="range" min="0" max="9" value="3"><output id="frameValue">3</output></label>
+    <label class="check"><input id="guard" type="checkbox" checked> PRESERVE COUNTERS</label>
+  </section>
+  <section class="analysis">
+    <div><small>GLYPH FIELD</small><canvas id="glyphView" width="256" height="256"></canvas></div>
+    <div><small>PARROT FIELD</small><canvas id="parrotView" width="256" height="256"></canvas></div>
+    <div class="stats"><small>TOPOLOGY</small><dl><dt>β₀ COMPONENTS</dt><dd id="beta0">—</dd><dt>β₁ HOLES</dt><dd id="beta1">—</dd><dt>GUARDED PIXELS</dt><dd id="guarded">—</dd></dl></div>
+  </section>
+  <p class="note">Chamfer signed-distance fields are smoothly unioned. Counter regions found by background flood fill are subtracted again when topology guard is enabled.</p>
+</main><script src="topology.js"></script></body></html>
