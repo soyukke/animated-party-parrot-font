@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Party Parrot Variable Font</title>
+  <link rel="stylesheet" href="party.css">
+</head>
+<body>
+  <main>
+    <header><span>PARTY PARROT — OFFICIAL SHAPE</span><a href="index.html">Kinetic Seven →</a></header>
+    <section id="stage" class="stage" aria-label="Animated party parrots"></section>
+    <section class="type-panel">
+      <label for="message">TYPE SOMETHING</label>
+      <input id="message" value="PARTY" maxlength="18" autocomplete="off" spellcheck="false">
+      <output id="count">5 PARROTS</output>
+    </section>
+    <section class="ligature-panel">
+      <div><strong>OPENTYPE LIGATURE</strong><small>type: party / parrot / party_parrot</small></div>
+      <div class="ligature-input" contenteditable="true" spellcheck="false" aria-label="Ligature playground">party</div>
+      <code>font-feature-settings: "liga" 1;</code>
+    </section>
+    <section class="controls">
+      <button id="toggle">PAUSE</button>
+      <label>FRAME <input id="axis" type="range" min="0" max="100" value="0" step="0.1"></label>
+      <label>SPEED <input id="speed" type="range" min="0.2" max="3" value="1.4" step="0.1"></label>
+    </section>
+    <section class="usage">
+      <h1>USE IT</h1>
+      <pre><code>@font-face {
+  font-family: "Party Parrot Official";
+  src: url("fonts/party-parrot-official.woff2");
+}
+.parrot {
+  font-family: "Party Parrot Official";
+}</code></pre>
+      <p><code>P</code>または<code>🦜</code>で静止フレームを表示。<code>party</code>、<code>parrot</code>、<code>party_parrot</code>はOpenType合字で1羽になります。アニメーションは本家GIFの10フレームをCOLRグリフとして順番に切り替えます。<br><small>Source: Cult of the Party Parrot / Geiger Powell.</small></p>
+    </section>
+  </main>
+  <script src="party.js"></script>
+</body>
+</html>

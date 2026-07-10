@@ -1,0 +1,28 @@
+@font-face { font-family: "Party Parrot Official"; src: url("fonts/party-parrot-official.woff2") format("woff2"); font-display: block; }
+:root { color-scheme: dark; --bg: #0d0e13; --fg: #f8f6eb; --hot: #ff477e; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: ui-monospace, monospace; }
+main { min-height: 100vh; padding: clamp(1rem, 4vw, 3.5rem); }
+header { display: flex; justify-content: space-between; letter-spacing: .16em; font-size: .75rem; }
+a { color: #8aff80; }
+.stage { min-height: 48vh; display: flex; flex-wrap: wrap; align-content: center; align-items: center; justify-content: center; overflow: hidden; }
+.parrot { display: inline-block; width: clamp(4.5rem, 11vw, 10rem); margin: -.08em; font: clamp(5rem, 13vw, 11rem)/1 "Party Parrot Official"; transform-origin: 50% 82%; will-change: transform, filter; }
+.parrot-space { width: clamp(2rem, 5vw, 4rem); }
+.type-panel { display: grid; grid-template-columns: auto 1fr auto; gap: 1rem; align-items: center; padding: 1rem 0; border-top: 1px solid #444; }
+.type-panel label, .type-panel output { font-size: .72rem; letter-spacing: .12em; white-space: nowrap; }
+.type-panel input { border: 0; border-bottom: 2px solid var(--hot); background: transparent; color: var(--fg); padding: .5rem .25rem; font: clamp(1.3rem, 3vw, 2.4rem)/1 ui-monospace, monospace; text-transform: uppercase; outline: none; }
+.ligature-panel { display: grid; grid-template-columns: 1fr 1fr 1fr; align-items: center; gap: 1rem; padding: 1rem 0; border-top: 1px solid #444; }
+.ligature-panel strong, .ligature-panel small { display: block; font-size: .7rem; letter-spacing: .1em; }
+.ligature-panel small { margin-top: .35rem; color: #888; }
+.ligature-input { min-height: 4.5rem; padding: .2rem; outline: none; border-bottom: 2px solid #8aff80; text-align: center; font: 4rem/1 "Party Parrot Official"; font-feature-settings: "liga" 1; }
+.ligature-panel > code { font-size: .7rem; }
+.controls { display: grid; grid-template-columns: auto 1fr 1fr; align-items: center; gap: 1.5rem; border-block: 1px solid #444; padding: 1rem 0; }
+label { display: flex; align-items: center; gap: 1rem; font-size: .75rem; }
+input { width: 100%; accent-color: var(--hot); }
+button { padding: .6rem 1rem; color: var(--fg); background: transparent; border: 1px solid var(--fg); cursor: pointer; }
+.usage { display: grid; grid-template-columns: .4fr 1fr 1fr; gap: 2rem; padding-top: 2rem; }
+.usage h1 { margin: 0; color: var(--hot); }
+pre { margin: 0; padding: 1rem; overflow: auto; background: #171923; font-size: .78rem; }
+.usage p { margin: 0; color: #aaa; line-height: 1.7; }
+code { color: #8aff80; }
+@media (max-width: 700px) { .controls, .usage, .type-panel, .ligature-panel { grid-template-columns: 1fr; } .stage { min-height: 38vh; } }
