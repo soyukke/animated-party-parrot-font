@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Turn all 10 frames of the official Party Parrot GIF into COLR glyphs."""
+"""Turn all 10 Party Parrot GIF frames into a linked COLR font family."""
 
 from io import BytesIO
 from pathlib import Path
 from urllib.request import Request, urlopen
 from collections import Counter
 from string import ascii_letters, digits, punctuation
+from zipfile import ZIP_DEFLATED, ZipFile
 
 from PIL import Image
 from fontTools.fontBuilder import FontBuilder
@@ -18,6 +19,13 @@ OUT = ROOT / "fonts"
 SOURCE = "https://cultofthepartyparrot.com/parrots/hd/partyparrot.gif"
 PUA = 0xE000
 SCALE = 7
+FAMILY = "Party Parrot Frames"
+STYLES = (
+    ("Regular", 0, 400, False, False, "regular"),
+    ("Bold", 2, 700, True, False, "bold"),
+    ("Italic", 7, 400, False, True, "italic"),
+    ("Bold Italic", 5, 700, True, True, "bold-italic"),
+)
 
 
 def rect(pen, x1, y1, x2, y2):
@@ -80,13 +88,7 @@ def frame_layers(image, frame_index, palette, glyphs):
     return layers
 
 
-def main():
-    OUT.mkdir(exist_ok=True)
-    data = urlopen(Request(SOURCE, headers={"User-Agent": "Mozilla/5.0"})).read()
-    gif = Image.open(BytesIO(data))
-    if gif.size != (128, 128) or gif.n_frames != 10:
-        raise ValueError(f"Unexpected official GIF: {gif.size}, {gif.n_frames} frames")
-
+def build_sources(gif):
     empty = TTGlyphPen(None).glyph()
     preview_chars = ascii_letters + digits + punctuation
     text_glyphs = {character: f"text.u{ord(character):04X}" for character in preview_chars}
@@ -100,44 +102,65 @@ def main():
         base_names.append(base); glyphs[base] = empty
         colr[base] = frame_layers(gif, frame, palette, glyphs)
 
-    # Make OS font preview sample strings render as a flock: every printable
-    # ASCII glyph reuses the official first-frame color layers. Distinct base
-    # glyph names are retained so GSUB can still recognize words as ligatures.
-    for glyph in text_glyphs.values():
-        colr[glyph] = colr[base_names[0]]
-
     # COLR v0 compatibility: early Windows implementations require glyph ID 1
     # to be .null (OpenType COLR specification recommendation).
     order = [".notdef", ".null", "space"] + list(text_glyphs.values()) + base_names + [n for n in glyphs if n not in {".notdef", ".null", "space", *text_glyphs.values(), *base_names}]
+    colors = [None] * len(palette)
+    for rgba, index in palette.items():
+        colors[index] = tuple(channel / 255 for channel in rgba)
+    return glyphs, text_glyphs, base_names, colr, order, colors
+
+
+def build_style(style_name, preview_frame, weight, bold, italic, suffix, sources):
+    glyphs, text_glyphs, base_names, frame_colr, order, colors = sources
+    colr = dict(frame_colr)
+    for glyph in text_glyphs.values():
+        colr[glyph] = frame_colr[base_names[preview_frame]]
     fb = FontBuilder(1000, isTTF=True)
     fb.setupGlyphOrder(order); fb.setupGlyf(glyphs)
     fb.setupHorizontalMetrics({name: (1000 if name != "space" else 360, 0) for name in order})
-    cmap = {0x1F99C: base_names[0], 32: "space"}
+    cmap = {0x1F99C: base_names[preview_frame], 32: "space"}
     cmap.update({ord(character): glyph for character, glyph in text_glyphs.items()})
     cmap.update({PUA + i: name for i, name in enumerate(base_names)})
     fb.setupCharacterMap(cmap)
     fb.setupHorizontalHeader(ascent=1000, descent=0)
-    fb.setupOS2(sTypoAscender=1000, sTypoDescender=0, usWinAscent=1000, usWinDescent=0)
-    fb.setupNameTable({"familyName": "Party Parrot Official", "styleName": "Regular",
-                       "uniqueFontIdentifier": "PartyParrotOfficialFrames-1.0",
-                       "fullName": "Party Parrot Official Frames", "psName": "PartyParrotOfficialFrames"})
-    fb.setupPost(); fb.setupMaxp(); fb.setupCOLR(colr, version=0)
-    colors = [None] * len(palette)
-    for rgba, index in palette.items():
-        colors[index] = tuple(channel / 255 for channel in rgba)
+    fs_selection = (0x20 if bold else 0) | (0x01 if italic else 0) | (0x40 if not bold and not italic else 0)
+    fb.setupOS2(sTypoAscender=1000, sTypoDescender=0, usWinAscent=1000, usWinDescent=0,
+                usWeightClass=weight, fsSelection=fs_selection)
+    ps_style = style_name.replace(" ", "")
+    fb.setupNameTable({"familyName": FAMILY, "styleName": style_name,
+                       "uniqueFontIdentifier": f"PartyParrotFrames-{ps_style}-1.0",
+                       "fullName": f"{FAMILY} {style_name}", "psName": f"PartyParrotFrames-{ps_style}"})
+    fb.setupPost(italicAngle=-12 if italic else 0); fb.setupMaxp(); fb.setupCOLR(colr, version=0)
+    fb.font["head"].macStyle = (1 if bold else 0) | (2 if italic else 0)
     fb.setupCPAL([colors])
     addOpenTypeFeaturesFromString(fb.font, f"""
         languagesystem DFLT dflt;
         feature liga {{
-            sub {' '.join(text_glyphs[c] for c in 'party')} by {base_names[0]};
-            sub {' '.join(text_glyphs[c] for c in 'parrot')} by {base_names[0]};
-            sub {' '.join(text_glyphs[c] for c in 'party_parrot')} by {base_names[0]};
+            sub {' '.join(text_glyphs[c] for c in 'party')} by {base_names[preview_frame]};
+            sub {' '.join(text_glyphs[c] for c in 'parrot')} by {base_names[preview_frame]};
+            sub {' '.join(text_glyphs[c] for c in 'party_parrot')} by {base_names[preview_frame]};
         }} liga;
     """)
 
-    ttf = OUT / "party-parrot-official.ttf"; fb.save(ttf)
-    web = TTFont(ttf); web.flavor = "woff2"; web.save(OUT / "party-parrot-official.woff2")
-    print(f"Built {gif.n_frames} exact GIF-frame glyphs with {len(colors)} colors")
+    ttf = OUT / f"party-parrot-frames-{suffix}.ttf"; fb.save(ttf)
+    web = TTFont(ttf); web.flavor = "woff2"; web.save(OUT / f"party-parrot-frames-{suffix}.woff2")
+    return ttf
+
+
+def main():
+    OUT.mkdir(exist_ok=True)
+    data = urlopen(Request(SOURCE, headers={"User-Agent": "Mozilla/5.0"})).read()
+    gif = Image.open(BytesIO(data))
+    if gif.size != (128, 128) or gif.n_frames != 10:
+        raise ValueError(f"Unexpected source GIF: {gif.size}, {gif.n_frames} frames")
+    sources = build_sources(gif)
+    ttfs = [build_style(*style, sources) for style in STYLES]
+    with ZipFile(OUT / "party-parrot-frames-family.zip", "w", ZIP_DEFLATED) as archive:
+        for ttf in ttfs:
+            archive.write(ttf, ttf.name)
+        archive.write(ROOT / "PARTY_PARROT_LICENSE.md", "THIRD_PARTY_NOTICES.md")
+    print(f"Built {len(ttfs)} linked styles from {gif.n_frames} GIF frames")
 
 
 if __name__ == "__main__":
