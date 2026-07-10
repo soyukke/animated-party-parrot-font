@@ -13,7 +13,10 @@ let start = performance.now();
 function buildParrots() {
   stage.replaceChildren();
   let visible = 0;
-  for (const character of message.value || 'P') {
+  const typed = message.value || 'P';
+  const isLigature = /^(party|parrot|party_parrot)$/i.test(typed.trim());
+  const characters = isLigature ? ['P'] : [...typed];
+  for (const character of characters) {
     const span = document.createElement('span');
     if (/\s/.test(character)) {
       span.className = 'parrot-space';
@@ -26,8 +29,8 @@ function buildParrots() {
     stage.append(span);
   }
   parrots = [...stage.querySelectorAll('.parrot')];
-  count.value = `${visible} PARROT${visible === 1 ? '' : 'S'}`;
-  stage.setAttribute('aria-label', `${message.value}: ${visible} animated parrots`);
+  count.value = isLigature ? '1 LIGATURE' : `${visible} PARROT${visible === 1 ? '' : 'S'}`;
+  stage.setAttribute('aria-label', `${message.value}: ${visible} animated parrot${visible === 1 ? '' : 's'}`);
 }
 
 function render(now) {

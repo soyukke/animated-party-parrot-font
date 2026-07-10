@@ -18,6 +18,7 @@ python3 -m http.server 8000
 `party.html` は、本家128×128 GIFの10フレームを別々のCOLRグリフへ変換し、40ms間隔で切り替えるカラーフォントの使用例です。
 入力欄の各文字を1羽へ変換するプレイグラウンドも含み、空白を保ちながら最大18文字まで表示できます。
 OpenType GSUBの標準合字`liga`により、`party`、`parrot`、`party_parrot`も単一のパロットグリフへ置換されます。
+Pagesのデモからインストール用TTFとWeb用WOFF2を直接ダウンロードできます。
 
 ```sh
 .venv/bin/python build_party_parrot.py
