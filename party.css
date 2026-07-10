@@ -18,6 +18,10 @@ a { color: #8aff80; }
 .ligature-panel small { margin-top: .35rem; color: #888; }
 .ligature-input { min-height: 4.5rem; padding: .2rem; outline: none; border-bottom: 2px solid #8aff80; text-align: center; font: 4rem/1 "Party Parrot Frames"; font-feature-settings: "liga" 1; }
 .ligature-panel > code { font-size: .7rem; }
+.tag-showcase { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; padding: 1rem 0; border-top: 1px solid #444; }
+.tag-showcase > div { min-width: 0; padding: 1rem; background: #15171d; }
+.tag-showcase small { color: #888; font-size: .65rem; letter-spacing: .1em; }
+.tag-showcase p { min-height: 5rem; margin: .6rem 0 0; overflow: hidden; outline: none; white-space: nowrap; font: clamp(2.8rem, 6vw, 5rem)/1 "Party Parrot Frames"; font-feature-settings: "liga" 1; }
 .downloads { display: grid; grid-template-columns: auto auto auto 1fr; align-items: center; gap: 1.2rem; padding: 1rem 0; border-top: 1px solid #444; font-size: .72rem; }
 .downloads strong { color: var(--hot); }
 .downloads small { color: #888; line-height: 1.5; }
@@ -30,4 +34,4 @@ button { padding: .6rem 1rem; color: var(--fg); background: transparent; border:
 pre { margin: 0; padding: 1rem; overflow: auto; background: #171923; font-size: .78rem; }
 .usage p { margin: 0; color: #aaa; line-height: 1.7; }
 code { color: #8aff80; }
-@media (max-width: 700px) { header nav { flex-direction: column; gap: .4rem; text-align: right; } .controls, .usage, .type-panel, .ligature-panel, .downloads { grid-template-columns: 1fr; } .stage { min-height: 38vh; } }
+@media (max-width: 700px) { header nav { flex-direction: column; gap: .4rem; text-align: right; } .controls, .usage, .type-panel, .ligature-panel, .tag-showcase, .downloads { grid-template-columns: 1fr; } .stage { min-height: 38vh; } }
