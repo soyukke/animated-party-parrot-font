@@ -5,6 +5,7 @@ from io import BytesIO
 from pathlib import Path
 from urllib.request import Request, urlopen
 from collections import Counter
+from string import ascii_letters, digits, punctuation
 
 from PIL import Image
 from fontTools.fontBuilder import FontBuilder
@@ -87,8 +88,8 @@ def main():
         raise ValueError(f"Unexpected official GIF: {gif.size}, {gif.n_frames} frames")
 
     empty = TTGlyphPen(None).glyph()
-    ligature_chars = "party_o"
-    text_glyphs = {character: f"text.{character if character != '_' else 'underscore'}" for character in ligature_chars}
+    preview_chars = ascii_letters + digits + punctuation
+    text_glyphs = {character: f"text.u{ord(character):04X}" for character in preview_chars}
     glyphs = {".notdef": empty, ".null": empty, "space": empty, **{name: empty for name in text_glyphs.values()}}
     palette = {}
     colr = {}
@@ -99,13 +100,19 @@ def main():
         base_names.append(base); glyphs[base] = empty
         colr[base] = frame_layers(gif, frame, palette, glyphs)
 
+    # Make OS font preview sample strings render as a flock: every printable
+    # ASCII glyph reuses the official first-frame color layers. Distinct base
+    # glyph names are retained so GSUB can still recognize words as ligatures.
+    for glyph in text_glyphs.values():
+        colr[glyph] = colr[base_names[0]]
+
     # COLR v0 compatibility: early Windows implementations require glyph ID 1
     # to be .null (OpenType COLR specification recommendation).
     order = [".notdef", ".null", "space"] + list(text_glyphs.values()) + base_names + [n for n in glyphs if n not in {".notdef", ".null", "space", *text_glyphs.values(), *base_names}]
     fb = FontBuilder(1000, isTTF=True)
     fb.setupGlyphOrder(order); fb.setupGlyf(glyphs)
     fb.setupHorizontalMetrics({name: (1000 if name != "space" else 360, 0) for name in order})
-    cmap = {ord("P"): base_names[0], 0x1F99C: base_names[0], 32: "space"}
+    cmap = {0x1F99C: base_names[0], 32: "space"}
     cmap.update({ord(character): glyph for character, glyph in text_glyphs.items()})
     cmap.update({PUA + i: name for i, name in enumerate(base_names)})
     fb.setupCharacterMap(cmap)
