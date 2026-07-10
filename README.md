@@ -20,6 +20,12 @@ python3 -m http.server 8000
 OpenType GSUBの標準合字`liga`により、`party`、`parrot`、`party_parrot`も単一のパロットグリフへ置換されます。
 Pagesのデモからインストール用TTFとWeb用WOFF2を直接ダウンロードできます。
 
+英数字・ひらがなには文字ごとに異なるGIFフレームを割り当てています。文字はパロットのくちばしに咥えられた小さなタグとして合成され、`abcde`や`あいうえお`では文字とポーズが一緒に変化します。ラベル字形はSIL Open Font License 1.1のNoto Sans JPから派生しています。
+
+### Rights-holder requests
+
+This is a non-commercial, unofficial experimental fan project. If you are a rights holder and have concerns, please open an issue. The relevant material will be reviewed and removed or replaced promptly upon a credible request.
+
 ### Windows
 
 Windows 10/11ではTTFを右クリックして「インストール」を選択します。本フォントはWindowsのDirectWrite互換性のためglyph ID 1を`.null`にし、COLR v0/CPALとGSUB `liga`を使用しています。対応アプリではカラーの静止フレームと合字が表示されます。フォント単体にタイマーはないため、10フレームのアニメーションにはWebデモまたはフレームを切り替えるアプリが必要です。
