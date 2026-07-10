@@ -20,6 +20,10 @@ python3 -m http.server 8000
 OpenType GSUBの標準合字`liga`により、`party`、`parrot`、`party_parrot`も単一のパロットグリフへ置換されます。
 Pagesのデモからインストール用TTFとWeb用WOFF2を直接ダウンロードできます。
 
+### Windows
+
+Windows 10/11ではTTFを右クリックして「インストール」を選択します。本フォントはWindowsのDirectWrite互換性のためglyph ID 1を`.null`にし、COLR v0/CPALとGSUB `liga`を使用しています。対応アプリではカラーの静止フレームと合字が表示されます。フォント単体にタイマーはないため、10フレームのアニメーションにはWebデモまたはフレームを切り替えるアプリが必要です。
+
 ```sh
 .venv/bin/python build_party_parrot.py
 python3 -m http.server 8000
